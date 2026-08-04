@@ -1,0 +1,6 @@
+{
+  "name": "RAG GoFiber DeepSeek App",
+  "description": "RAG system with Golang, GoFiber, GORM, Logrus, Vector Search, and DeepSeek / Gemini LLM integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
