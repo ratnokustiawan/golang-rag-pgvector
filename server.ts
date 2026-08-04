@@ -63,7 +63,8 @@ function startGoBackend() {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT || process.env.SERVER_PORT || 3000);
+  const HOST = process.env.HOST || process.env.SERVER_HOST || "0.0.0.0";
   const targetBackend = process.env.GO_BACKEND_TARGET || "http://127.0.0.1:8081";
 
   // Start GoFiber backend on port 8081
@@ -107,8 +108,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[Fullstack Server] Unified server listening on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`[Fullstack Server] Unified server listening on http://${HOST}:${PORT}`);
   });
 }
 

@@ -10,7 +10,7 @@ Proyek ini menggunakan arsitektur **Full-Stack Hybrid**:
 
 Sebelum menjalankan proyek ini, pastikan sistem Anda sudah terinstal:
 - **Node.js**: v18 atau lebih baru (direkomendasikan v20+)
-- **Go**: v1.22 atau lebih baru
+- **Go**: v1.26 atau lebih baru
 - **npm** atau **bun** / **yarn**
 
 ---
@@ -44,10 +44,29 @@ Buat file `.env` di root direktori dengan menyalin dari `.env.example`:
 cp .env.example .env
 ```
 
-Isi variabel lingkungan yang diperlukan:
+Berikut adalah daftar seluruh variabel lingkungan (Environment Variables) yang dapat dikonfigurasi:
+
+| Nama Variable | Default Value | Keterangan / Deskripsi |
+| :--- | :--- | :--- |
+| `SERVER_HOST` / `HOST` | `0.0.0.0` | Host tempat server Node.js / Express mendengarkan |
+| `SERVER_PORT` / `PORT` | `3000` | Port utama server Node.js / Express |
+| `GO_PORT` | `8081` | Port internal untuk server backend GoFiber |
+| `GO_BACKEND_TARGET` | `http://127.0.0.1:8081` | Target URL proxy Node.js ke Go backend |
+| `SKIP_GO_SPAWN` | `false` | Set `true` jika backend Go dijalankan secara manual |
+| `APP_URL` | `http://localhost:3000` | URL publik aplikasi |
+| `GEMINI_API_KEY` | `""` | Kunci API Google Gemini untuk sintesis teks AI & RAG (opsional) |
+| `DEEPSEEK_API_KEY` | `""` | Kunci API DeepSeek sebagai alternatif provider LLM/RAG (opsional) |
+
+Contoh isi `.env`:
 ```env
-GEMINI_API_KEY="sk-..." # Opsional: Kunci API Google Gemini untuk fungsionalidad RAG / Embedding AI
+SERVER_HOST="0.0.0.0"
+PORT=3000
+GO_PORT=8081
+GO_BACKEND_TARGET="http://127.0.0.1:8081"
+SKIP_GO_SPAWN="false"
 APP_URL="http://localhost:3000"
+GEMINI_API_KEY="sk-..."
+DEEPSEEK_API_KEY=""
 ```
 
 ---

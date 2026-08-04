@@ -1,7 +1,7 @@
 # ==========================================
 # STAGE 1: Build Go Backend Binary
 # ==========================================
-FROM golang:1.22-alpine AS go-builder
+FROM golang:1.26-alpine AS go-builder
 WORKDIR /app/go_backend
 
 # Copy Go dependency manifests and download modules
