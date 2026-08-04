@@ -1,17 +1,73 @@
 version: '3.8'
 
 services:
-  fiber-gopher-rag:
+  # ==========================================
+  # 1. DATABASE SERVICE (PostgreSQL + pgvector)
+  # ==========================================
+  database:
+    image: pgvector/pgvector:pg16
+    container_name: fiber_gopher_rag_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fiber_gopher_rag}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fiber_gopher_rag}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==========================================
+  # 2. BACKEND SERVICE (GoFiber + GORM + RAG Engine)
+  # ==========================================
+  backend:
+    build:
+      context: ./go_backend
+      dockerfile: Dockerfile
+    container_name: fiber_gopher_rag_backend
+    ports:
+      - "8081:8081"
+    environment:
+      GO_PORT: 8081
+      DB_DRIVER: postgres
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
+      POSTGRES_DB: ${POSTGRES_DB:-fiber_gopher_rag}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ==========================================
+  # 3. FRONTEND SERVICE (Node.js + Express + Vite UI Proxy)
+  # ==========================================
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: fiber_gopher_rag_app
+    container_name: fiber_gopher_rag_frontend
     ports:
       - "3000:3000"
     environment:
-      - PORT=3000
-      - NODE_ENV=production
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-    env_file:
-      - .env
+      PORT: 3000
+      SERVER_HOST: "0.0.0.0"
+      GO_BACKEND_TARGET: "http://backend:8081"
+      SKIP_GO_SPAWN: "true"
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      NODE_ENV: production
+    depends_on:
+      - backend
     restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

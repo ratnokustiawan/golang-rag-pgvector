@@ -15,21 +15,24 @@ Sebelum menjalankan proyek ini, pastikan sistem Anda sudah terinstal:
 
 ---
 
-## 🐳 1. Jalankan dengan Docker Compose (Paling Mudah)
+## 🐳 1. Jalankan dengan Docker Compose (Full Stack 3-Tier)
 
-Cukup satu perintah untuk melakukan *multi-stage build* dan menjalankan seluruh aplikasi beserta backend GoFiber di dalam container:
+File `docker-compose.yml` telah dikonfigurasi lengkap untuk menjalankan 3 layanan (*services*) terpisah dalam container terisolasi:
+1. **`database`**: PostgreSQL dengan ekstensi **pgvector** (`pgvector/pgvector:pg16`) untuk penyimpanan dokumen & vektor embedding.
+2. **`backend`**: Service Go + GoFiber + GORM RAG Engine (Port 8081).
+3. **`frontend`**: Service Node.js + Express + Vite UI Proxy (Port 3000).
 
 ```bash
 # 1. Pastikan file .env sudah dikonfigurasi (opsional)
 cp .env.example .env
 
-# 2. Jalankan dengan Docker Compose
+# 2. Jalankan seluruh layanan (database, backend, frontend)
 docker compose up --build
 ```
 
-Aplikasi akan langsung dapat diakses di **`http://localhost:3000`**.
+Aplikasi web dapat langsung diakses di **`http://localhost:3000`**, API Backend di **`http://localhost:8081`**, dan PostgreSQL Database di **`localhost:5432`**.
 
-Untuk menghentikan container:
+Untuk menghentikan dan menghapus container:
 ```bash
 docker compose down
 ```
@@ -52,7 +55,13 @@ Berikut adalah daftar seluruh variabel lingkungan (Environment Variables) yang d
 | `SERVER_PORT` / `PORT` | `3000` | Port utama server Node.js / Express |
 | `GO_PORT` | `8081` | Port internal untuk server backend GoFiber |
 | `GO_BACKEND_TARGET` | `http://127.0.0.1:8081` | Target URL proxy Node.js ke Go backend |
-| `SKIP_GO_SPAWN` | `false` | Set `true` jika backend Go dijalankan secara manual |
+| `SKIP_GO_SPAWN` | `false` | Set `true` jika backend Go dijalankan di container terpisah |
+| `DB_DRIVER` | `postgres` | Driver basis data (`postgres` atau `sqlite`) |
+| `POSTGRES_HOST` | `database` | Host database PostgreSQL |
+| `POSTGRES_PORT` | `5432` | Port database PostgreSQL |
+| `POSTGRES_USER` | `postgres` | Username database PostgreSQL |
+| `POSTGRES_PASSWORD` | `postgres_password` | Password database PostgreSQL |
+| `POSTGRES_DB` | `fiber_gopher_rag` | Nama basis data PostgreSQL |
 | `APP_URL` | `http://localhost:3000` | URL publik aplikasi |
 | `GEMINI_API_KEY` | `""` | Kunci API Google Gemini untuk sintesis teks AI & RAG (opsional) |
 | `DEEPSEEK_API_KEY` | `""` | Kunci API DeepSeek sebagai alternatif provider LLM/RAG (opsional) |
