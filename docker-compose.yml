@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  fiber-gopher-rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fiber_gopher_rag_app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    env_file:
+      - .env
+    restart: unless-stopped

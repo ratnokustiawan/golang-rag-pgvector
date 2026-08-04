@@ -8,6 +8,11 @@ import fs from "fs";
 let goProcess: ChildProcess | null = null;
 
 function startGoBackend() {
+  if (process.env.SKIP_GO_SPAWN === "true") {
+    console.log("[Node Server] SKIP_GO_SPAWN is set to true. Skipping Go process spawning.");
+    return;
+  }
+
   const goBackendDir = path.join(process.cwd(), "go_backend");
   const binaryPath = path.join(goBackendDir, "server_go");
 
@@ -59,15 +64,16 @@ function startGoBackend() {
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const targetBackend = process.env.GO_BACKEND_TARGET || "http://127.0.0.1:8081";
 
   // Start GoFiber backend on port 8081
   startGoBackend();
 
-  // Proxy /api requests directly to GoFiber backend running on port 8081
+  // Proxy /api requests directly to GoFiber backend
   app.use(
     "/api",
     createProxyMiddleware({
-      target: "http://127.0.0.1:8081",
+      target: targetBackend,
       changeOrigin: true,
       pathRewrite: (pathStr) => {
         return pathStr.startsWith("/api") ? pathStr : "/api" + pathStr;
